@@ -26,6 +26,7 @@ $ pip uninstall META_DOMAIN_TRANSFER
 ```
 
 ## Running the code
+### Training
 To train MetaPixelWeight:
 ```bash
 $ cd <root_dir>/advent/scripts
