@@ -4,6 +4,7 @@
 # --------------------------------------------------------
 
 import os.path as osp
+from pathlib import Path
 
 import numpy as np
 from easydict import EasyDict
@@ -25,8 +26,8 @@ cfg.NUM_WORKERS = 4
 cfg.DATA_LIST_SOURCE = str(project_root / 'meta_domain_transfer/dataset/gta5_list/{}.txt')
 cfg.DATA_LIST_TARGET = str(project_root / 'meta_domain_transfer/dataset/cityscapes_list/{}.txt')
 # Directories
-cfg.DATA_DIRECTORY_SOURCE = str('/home/yiren/datasets/UDA/GTA5')
-cfg.DATA_DIRECTORY_TARGET = str('/home/yiren/datasets/UDA/Cityscapes')
+cfg.DATA_DIRECTORY_SOURCE = str(Path.home()) + str('/datasets/UDA/GTA5')
+cfg.DATA_DIRECTORY_TARGET = str(Path.home()) + str('/datasets/UDA/Cityscapes')
 # Number of object classes
 cfg.NUM_CLASSES = 19
 # Exp dirs
@@ -65,6 +66,8 @@ cfg.TRAIN.LAMBDA_SEG_AUX = 0.1  # weight of conv4 prediction. Used in multi-leve
 # Domain adaptation
 cfg.TRAIN.DA_METHOD = 'AdvEnt'
 # Meta learning parameters
+cfg.TRAIN.META_OPTIMIZER = 'Adam'
+cfg.TRAIN.META_ALTERNATION_RATE = 1
 cfg.TRAIN.META_LEARNING_RATE = 1e-4
 cfg.TRAIN.META_WEIGHT_DECAY = 1e-4
 cfg.TRAIN.SCALE_LOSS = 0.3

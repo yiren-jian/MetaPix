@@ -552,7 +552,8 @@ def VGG16_FCN8s(num_classes=21, init_weights=None, restore_from=None):
 def get_fcn8s_vgg(num_classes=19, init_weights='../../pretrained_models/vggfcn_init_v2.pth', restore_from=None):
     model = FCN8s(num_classes=num_classes)
     if init_weights is not None:
-        model.load_state_dict(torch.load(init_weights, map_location=lambda storage, loc: storage))
+        pass
+        # model.load_state_dict(torch.load(init_weights, map_location=lambda storage, loc: storage))
     if restore_from is not None:
         model.load_state_dict(torch.load(restore_from + '.pth', map_location=lambda storage, loc: storage))
     return model

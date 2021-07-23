@@ -443,11 +443,18 @@ def train_meta_pixel_weight(model, trainloader, targetloader, cfg):
             weight_decay=cfg.TRAIN.WEIGHT_DECAY)
 
     # W's optimizer
-    optimizer_W = optim.Adam(
-            model_W.parameters(),
-            lr=cfg.TRAIN.META_LEARNING_RATE,
-            betas=(0.9, 0.999),
-            weight_decay=cfg.TRAIN.META_WEIGHT_DECAY)
+    if cfg.TRAIN.META_OPTIMIZER == 'Adam':
+        optimizer_W = optim.Adam(
+                model_W.parameters(),
+                lr=cfg.TRAIN.META_LEARNING_RATE,
+                betas=(0.9, 0.999),
+                weight_decay=cfg.TRAIN.META_WEIGHT_DECAY)
+    elif cfg.TRAIN.META_OPTIMIZER == 'SGD':
+        optimizer_W = optim.SGD(
+                model_W.parameters(),
+                lr=cfg.TRAIN.META_LEARNING_RATE,
+                betas=(0.9, 0.999),
+                weight_decay=cfg.TRAIN.META_WEIGHT_DECAY)
 
 
     trainloader_iter = loopy(trainloader)
@@ -456,9 +463,10 @@ def train_meta_pixel_weight(model, trainloader, targetloader, cfg):
         _train_meta_pixel_weight_step1(trainloader_iter, targetloader_iter, i_iter,
                                        model, model_W, optimizer, optimizer_W,
                                        viz_tensorboard, writer, device, cfg)
-        _train_meta_pixel_weight_step2(trainloader_iter, targetloader_iter, i_iter,
-                                       model, model_W, optimizer, optimizer_W,
-                                       viz_tensorboard, writer, device, cfg)
+        if i_iter % cfg.TRAIN.META_ALTERNATION_RATE == 0:
+            _train_meta_pixel_weight_step2(trainloader_iter, targetloader_iter, i_iter,
+                                           model, model_W, optimizer, optimizer_W,
+                                           viz_tensorboard, writer, device, cfg)
 
 
 def _train_meta_pixel_weight_step1(trainloader_iter, targetloader_iter, i_iter,
