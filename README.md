@@ -26,17 +26,24 @@ $ pip uninstall META_DOMAIN_TRANSFER
 ```
 
 ## Running the code
+### Preparation
+```bash
+$ cd <root_dir>/meta_domain_transfer/model
+$ python fcn8s_v2.py
+```
+This will create a directory `pretrained_models` with/and a FCN model pretrained on ImageNet.
+
 ### Training
 To train MetaPixelWeight:
 ```bash
-$ cd <root_dir>/advent/scripts
+$ cd <root_dir>/meta_domain_transfer/scripts
 $ python train.py --cfg ./configs/meta_pixel_weight.yml
 ```
 
 ### Testing
 To test MetaPixelWeight:
 ```bash
-$ cd <root_dir>/advent/scripts
+$ cd <root_dir>/meta_domain_transfer/scripts
 $ python test.py --cfg ./configs/meta_pixel_weight.yml
 ```
 
