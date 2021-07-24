@@ -331,7 +331,7 @@ def get_fcn8sx2_vgg(num_classes=19, init_weights='../../pretrained_models/vggfcn
     if init_weights is not None:
         model.load_state_dict(torch.load(init_weights, map_location=lambda storage, loc: storage))
     if restore_from is not None:
-        model.load_state_dict(torch.load(restore_from + '.pth', map_location=lambda storage, loc: storage))
+        model.load_state_dict(torch.load(restore_from, map_location=lambda storage, loc: storage))
     return model
 
 
