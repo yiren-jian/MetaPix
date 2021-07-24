@@ -414,7 +414,7 @@ def train_meta_pixel_weight(model, trainloader, targetloader, cfg):
     cudnn.enabled = True
 
     # AUXILIARY NETWORK: Pixel Weight
-    model_W = get_unet2(input_channel=23, num_classes=2)
+    model_W = get_unet(input_channel=23, num_classes=2)
     # model_W = get_unet4(input_channel=39, num_classes=2)
     model_W.train()
     model_W.to(device)
