@@ -257,6 +257,8 @@ class FCN8sx2(nn.Module):
 
 def init_vggfcnx2():
     import torchvision.models as models
+    import os
+    import os.path
 
     # initiate a FCN model
     model = VGG16_FCN8sx2(num_classes=19, init_weights=None)
@@ -310,6 +312,8 @@ def init_vggfcnx2():
 
     # load into FCN and save as init model
     model.load_state_dict(params)
+    if not os.path.isdir('../../pretrained_models'):
+        os.mkdir('../../pretrained_models')
     torch.save(model.state_dict(), '../../pretrained_models/vggfcnx2_init_v2.pth')
 
 

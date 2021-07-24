@@ -201,7 +201,7 @@ def train_target_only(model, targetloader, cfg):
             log_losses_tensorboard(writer, current_losses, i_iter)
 
             if i_iter % cfg.TRAIN.TENSORBOARD_VIZRATE == cfg.TRAIN.TENSORBOARD_VIZRATE - 1:
-                draw_in_tensorboard(writer, image, i_iter, pred, num_classes, 'T')
+                draw_in_tensorboard(writer, image, i_iter, pred, num_classes, 'Target')
 
 
 def train_direct_joint(model, trainloader, targetloader, cfg):
