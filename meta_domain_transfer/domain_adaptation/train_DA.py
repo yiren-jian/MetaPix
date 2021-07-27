@@ -14,7 +14,7 @@ from torchvision.utils import make_grid
 from tqdm import tqdm
 
 from meta_domain_transfer.model.unet import get_unet, get_unet2, get_unet3, get_unet4
-from meta_domain_transfer.utils.func import adjust_learning_rate, adjust_learning_rate_discriminator
+from meta_domain_transfer.utils.func import adjust_learning_rate
 from meta_domain_transfer.utils.func import loss_calc, bce_loss
 from meta_domain_transfer.utils.loss import entropy_loss, robust_entropy_loss
 from meta_domain_transfer.utils.func import prob_2_entropy
