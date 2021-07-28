@@ -594,6 +594,268 @@ def _train_meta_pixel_weight_step2(trainloader_iter, targetloader_iter, i_iter,
     sys.stdout.flush()
 
 
+def train_W_with_FCN(model, trainloader, targetloader, cfg):
+    saved_state_dict = torch.load('/home/yiren/META_DOMAIN_TRANSFER/pretrained_models/model_gen0.pth')
+    model.load_state_dict(saved_state_dict)
+
+    # Create the model and start the training.
+    input_size_source = cfg.TRAIN.INPUT_SIZE_SOURCE
+    input_size_target = cfg.TRAIN.INPUT_SIZE_TARGET
+    device = cfg.GPU_ID
+    num_classes = cfg.NUM_CLASSES
+    viz_tensorboard = os.path.exists(cfg.TRAIN.TENSORBOARD_LOGDIR)
+    if viz_tensorboard:
+        writer = SummaryWriter(log_dir=cfg.TRAIN.TENSORBOARD_LOGDIR)
+
+    # SEGMNETATION NETWORK
+    model.train()
+    model.to(device)
+    cudnn.benchmark = True
+    cudnn.enabled = True
+
+    # AUXILIARY NETWORK: Pixel Weight
+    model_W = get_unet2(input_channel=23, num_classes=2)
+    # model_W = get_unet4(input_channel=39, num_classes=2)
+    model_W.train()
+    model_W.to(device)
+
+    # OPTIMIZERS
+    # segnet's optimizer
+    if cfg.TRAIN.OPTIMIZER == 'Adam':
+        optimizer = optim.Adam(
+            [
+                {'params': model.get_parameters(bias=False)},
+                {'params': model.get_parameters(bias=True),
+                 'lr': cfg.TRAIN.LEARNING_RATE * 2}
+            ],
+            lr=cfg.TRAIN.LEARNING_RATE,
+            betas=(0.9, 0.999),
+            weight_decay=cfg.TRAIN.WEIGHT_DECAY)
+    elif cfg.TRAIN.OPTIMIZER == 'SGD':
+        optimizer = optim.SGD(
+            [
+                {'params': model.get_parameters(bias=False)},
+                {'params': model.get_parameters(bias=True),
+                'lr': cfg.TRAIN.LEARNING_RATE * 2}
+            ],
+            lr=cfg.TRAIN.LEARNING_RATE,
+            momentum=cfg.TRAIN.MOMENTUM,
+            weight_decay=cfg.TRAIN.WEIGHT_DECAY)
+
+    # W's optimizer
+    if cfg.TRAIN.META_OPTIMIZER == 'Adam':
+        optimizer_W = optim.Adam(
+                model_W.parameters(),
+                lr=cfg.TRAIN.META_LEARNING_RATE,
+                betas=(0.9, 0.999),
+                weight_decay=cfg.TRAIN.META_WEIGHT_DECAY)
+    elif cfg.TRAIN.META_OPTIMIZER == 'SGD':
+        optimizer_W = optim.SGD(
+                model_W.parameters(),
+                lr=cfg.TRAIN.META_LEARNING_RATE,
+                betas=(0.9, 0.999),
+                weight_decay=cfg.TRAIN.META_WEIGHT_DECAY)
+
+
+    trainloader_iter = loopy(trainloader)
+    targetloader_iter = loopy(targetloader)
+    for i_iter in tqdm(range(cfg.TRAIN.MAX_ITERS)):
+        # reset optimizers
+        optimizer.zero_grad()
+        optimizer_W.zero_grad()
+        vgg_lr = optimizer.param_groups[0]['lr']
+
+        src_batch = next(trainloader_iter)
+        image_src, label_src, _, _ = src_batch
+        label_one_hot_src = F.one_hot(label_src.clamp(0,19).long(), num_classes=20)
+        label_one_hot_src = label_one_hot_src.transpose(2, 3).transpose(1, 2).contiguous()
+
+        trg_batch = next(targetloader_iter)
+        image_trg, label_trg, _, _ = trg_batch
+
+        _, pred_src = model(image_src.to(device), None)
+
+        model_W_output = model_W(torch.cat((image_src, label_one_hot_src.float()), dim=1).to(device))
+        # pred_src_copy = pred_src.data.clone().detach()
+        # model_W_output = model_W(torch.cat((pred_src_copy, label_one_hot_src.float().to(device)), dim=1))
+
+        pixel_weight = model_W_output[:,-1,:,:]
+
+        # current theta
+        fast_weights = OrderedDict((name, param) for (name, param) in model.named_parameters())
+
+        loss_seg_src = torch.nn.CrossEntropyLoss(weight=None, reduction='none', ignore_index=255)(pred_src, label_src.long().to(device))
+        loss_seg_src *= pixel_weight
+        current_losses = {'pixel_weight_mean': pixel_weight.mean().data}
+
+        loss_seg_src = loss_seg_src.mean()
+        grads = torch.autograd.grad(loss_seg_src, model.parameters(), create_graph=True, allow_unused=True)
+
+        # compute theta^+ by applying sgd on main loss
+        fast_new_weights = OrderedDict()
+        for  ((name, param), grad ) in zip(fast_weights.items(), grads):
+            if grad is not None:
+                fast_new_weights[name] = param - vgg_lr * grad
+            else:
+                fast_new_weights[name] = param
+
+        # compute target loss with the updated thetat^+
+        _, pred_trg = model.forward(None, image_trg.to(device), fast_new_weights)
+        loss_seg_trg = loss_calc(pred_trg, label_trg, None, device)
+
+        current_losses.update({'loss_seg_trg': loss_seg_trg.item()})
+        print_losses(current_losses, i_iter)
+
+        loss_seg_trg.backward()
+        optimizer_W.step()
+
+        if i_iter % cfg.TRAIN.SAVE_PRED_EVERY == 0 and i_iter != 0:
+            print('taking snapshot ...')
+            print('exp =', cfg.TRAIN.SNAPSHOT_DIR)
+            torch.save(model_W.state_dict(),
+                       osp.join(cfg.TRAIN.SNAPSHOT_DIR, f'model_W_{i_iter}.pth'))
+            if i_iter >= cfg.TRAIN.EARLY_STOP - 1:
+                pass
+        sys.stdout.flush()
+
+        # Visualize with tensorboard
+        if viz_tensorboard:
+            log_losses_tensorboard(writer, current_losses, i_iter)
+
+            if i_iter % cfg.TRAIN.TENSORBOARD_VIZRATE == cfg.TRAIN.TENSORBOARD_VIZRATE - 1:
+                draw_weight_in_tensorboard(writer, image_src, i_iter, pixel_weight)
+
+
+def train_FCN_with_W(model, trainloader, targetloader, cfg):
+    saved_state_dict = torch.load('/home/yiren/META_DOMAIN_TRANSFER/pretrained_models/model_gen0.pth')
+    model.load_state_dict(saved_state_dict)
+
+    # Create the model and start the training.
+    input_size_source = cfg.TRAIN.INPUT_SIZE_SOURCE
+    input_size_target = cfg.TRAIN.INPUT_SIZE_TARGET
+    device = cfg.GPU_ID
+    num_classes = cfg.NUM_CLASSES
+    viz_tensorboard = os.path.exists(cfg.TRAIN.TENSORBOARD_LOGDIR)
+    if viz_tensorboard:
+        writer = SummaryWriter(log_dir=cfg.TRAIN.TENSORBOARD_LOGDIR)
+
+    # SEGMNETATION NETWORK
+    model.train()
+    model.to(device)
+    cudnn.benchmark = True
+    cudnn.enabled = True
+
+    # AUXILIARY NETWORK: Pixel Weight
+    model_W = get_unet2(input_channel=23, num_classes=2)
+    # model_W = get_unet4(input_channel=39, num_classes=2)
+    model_W.load_state_dict(torch.load('/home/yiren/META_DOMAIN_TRANSFER/pretrained_models/W_gen0.pth'))
+    model_W.train()
+    model_W.to(device)
+
+    # OPTIMIZERS
+    # segnet's optimizer
+    if cfg.TRAIN.OPTIMIZER == 'Adam':
+        optimizer = optim.Adam(
+            [
+                {'params': model.get_parameters(bias=False)},
+                {'params': model.get_parameters(bias=True),
+                 'lr': cfg.TRAIN.LEARNING_RATE * 2}
+            ],
+            lr=cfg.TRAIN.LEARNING_RATE,
+            betas=(0.9, 0.999),
+            weight_decay=cfg.TRAIN.WEIGHT_DECAY)
+    elif cfg.TRAIN.OPTIMIZER == 'SGD':
+        optimizer = optim.SGD(
+            [
+                {'params': model.get_parameters(bias=False)},
+                {'params': model.get_parameters(bias=True),
+                'lr': cfg.TRAIN.LEARNING_RATE * 2}
+            ],
+            lr=cfg.TRAIN.LEARNING_RATE,
+            momentum=cfg.TRAIN.MOMENTUM,
+            weight_decay=cfg.TRAIN.WEIGHT_DECAY)
+
+    # W's optimizer
+    if cfg.TRAIN.META_OPTIMIZER == 'Adam':
+        optimizer_W = optim.Adam(
+                model_W.parameters(),
+                lr=cfg.TRAIN.META_LEARNING_RATE,
+                betas=(0.9, 0.999),
+                weight_decay=cfg.TRAIN.META_WEIGHT_DECAY)
+    elif cfg.TRAIN.META_OPTIMIZER == 'SGD':
+        optimizer_W = optim.SGD(
+                model_W.parameters(),
+                lr=cfg.TRAIN.META_LEARNING_RATE,
+                betas=(0.9, 0.999),
+                weight_decay=cfg.TRAIN.META_WEIGHT_DECAY)
+
+
+    trainloader_iter = loopy(trainloader)
+    targetloader_iter = loopy(targetloader)
+    for i_iter in tqdm(range(cfg.TRAIN.MAX_ITERS)):
+        optimizer.zero_grad()
+        optimizer_W.zero_grad()
+        # adapt LR if needed
+        model.adjust_learning_rate(optimizer, i_iter, cfg)
+
+        src_batch = next(trainloader_iter)
+        image_src, label_src, _, _ = src_batch
+        label_one_hot_src = F.one_hot(label_src.clamp(0,19).long(), num_classes=20)
+        label_one_hot_src = label_one_hot_src.transpose(2, 3).transpose(1, 2).contiguous()
+
+        trg_batch = next(targetloader_iter)
+        image_trg, label_trg, _, _ = trg_batch
+        label_one_hot_trg = F.one_hot(label_trg.clamp(0,19).long(), num_classes=20)
+        label_one_hot_trg = label_one_hot_trg.transpose(2, 3).transpose(1, 2).contiguous()
+
+        # train on source
+        _, pred = model(image_src.to(device), image_trg.to(device))
+        pred_src = pred[0].unsqueeze(0)
+        pred_trg = pred[1].unsqueeze(0)
+
+        with torch.no_grad():
+            model_W_output = model_W(torch.cat((image_src, label_one_hot_src.float()), dim=1).to(device))
+            # pred_src_copy = pred_src.data.clone().detach()
+            # model_W_output = model_W(torch.cat((pred_src_copy, label_one_hot_src.float().to(device)), dim=1))
+
+        pixel_weight = model_W_output[:,1,:,:]
+        pixel_weight = pixel_weight.data.clone().detach().squeeze(1)
+        loss_seg_src = torch.nn.CrossEntropyLoss(weight=None, reduction='none', ignore_index=255)(pred_src, label_src.long().to(device))
+
+        loss_seg_src *= pixel_weight
+        pixel_weight_mean = pixel_weight.mean().data
+        current_losses = {'pixel_weight_mean': pixel_weight_mean}
+
+        loss_seg_src = loss_seg_src.mean()
+        loss_seg_src.backward(retain_graph=True)
+        current_losses.update({'loss_seg_src': loss_seg_src.item()})
+
+        # train on target
+        loss_seg_trg = loss_calc(pred_trg, label_trg, None, device)
+        loss_seg_trg.backward()
+
+        current_losses.update({'loss_seg_trg': loss_seg_trg.item()})
+        print_losses(current_losses, i_iter)
+
+        # update the paramters in the segnet
+        optimizer.step()
+
+        if i_iter % cfg.TRAIN.SAVE_PRED_EVERY == 0 and i_iter != 0:
+            print('taking snapshot ...')
+            print('exp =', cfg.TRAIN.SNAPSHOT_DIR)
+            torch.save(model.state_dict(),
+                       osp.join(cfg.TRAIN.SNAPSHOT_DIR, f'model_{i_iter}.pth'))
+            if i_iter >= cfg.TRAIN.EARLY_STOP - 1:
+                pass
+        sys.stdout.flush()
+
+        # Visualize with tensorboard
+        if viz_tensorboard:
+            log_losses_tensorboard(writer, current_losses, i_iter)
+
+            if i_iter % cfg.TRAIN.TENSORBOARD_VIZRATE == cfg.TRAIN.TENSORBOARD_VIZRATE - 1:
+                draw_weight_in_tensorboard(writer, image_src, i_iter, pixel_weight)
+
 
 def train_meta_image_weight(model, trainloader, targetloader, cfg):
 
@@ -790,6 +1052,10 @@ def train_domain_adaptation(model, trainloader, targetloader, cfg):
         train_direct_joint(model, trainloader, targetloader, cfg)
     elif cfg.TRAIN.DA_METHOD == 'MetaPixelWeight':
         train_meta_pixel_weight(model, trainloader, targetloader, cfg)
+    elif cfg.TRAIN.DA_METHOD == 'train_W_with_FCN':
+        train_W_with_FCN(model, trainloader, targetloader, cfg)
+    elif cfg.TRAIN.DA_METHOD == 'train_FCN_with_W':
+        train_FCN_with_W(model, trainloader, targetloader, cfg)
     elif cfg.TRAIN.DA_METHOD == 'MetaImageWeight':
         train_meta_image_weight(model, trainloader, targetloader, cfg)
     elif cfg.TRAIN.DA_METHOD == 'ScaleSourceLoss':
