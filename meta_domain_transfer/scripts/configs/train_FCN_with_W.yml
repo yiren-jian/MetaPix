@@ -7,7 +7,7 @@ TRAIN:
   DA_METHOD: 'train_FCN_with_W'
   MODEL: FCN8s
   MODEL_PATH: '/home/yiren/META_DOMAIN_TRANSFER/pretrained_models/model_gen0.pth'
-  MODEL_W_PATH: '/home/yiren/META_DOMAIN_TRANSFER/pretrained_models/W_gen0.pth'
+  MODEL_W_PATH: '/home/yiren/META_DOMAIN_TRANSFER/pretrained_models/model_W_gen0.pth'
   OPTIMIZER: 'Adam'
   SCHEDULER: 'polynomial'
   LEARNING_RATE: 0.0001

@@ -6,7 +6,7 @@ TRAIN:
   INPUT_SIZE_TARGET: [1024, 512]
   DA_METHOD: 'train_W_with_FCN'
   MODEL_PATH: '/home/yiren/META_DOMAIN_TRANSFER/pretrained_models/model_gen0.pth'
-  MODEL_W_PATH: '/home/yiren/META_DOMAIN_TRANSFER/pretrained_models/W_gen0.pth'
+  MODEL_W_PATH: '/home/yiren/META_DOMAIN_TRANSFER/pretrained_models/model_W_gen0.pth'
   MODEL: FCN8s
   OPTIMIZER: 'Adam'
   SCHEDULER: 'polynomial'
