@@ -507,13 +507,12 @@ def _train_meta_pixel_weight_step1(trainloader_iter, targetloader_iter, i_iter,
     current_losses = {'pixel_weight_mean': pixel_weight_mean}
 
     loss_seg_src = loss_seg_src.mean()
-    # loss_seg_src.backward(retain_graph=True)
+    loss_seg_src.backward(retain_graph=True)
     current_losses.update({'loss_seg_src': loss_seg_src.item()})
 
     # train on target
     loss_seg_trg = loss_calc(pred_trg, label_trg, None, device)
-    loss_seg = loss_seg_trg + loss_seg_src
-    loss_seg.backward()
+    loss_seg_trg.backward()
 
     current_losses.update({'loss_seg_trg': loss_seg_trg.item()})
     print_losses(current_losses, i_iter)
@@ -697,13 +696,12 @@ def _train_meta_image_weight_step1(trainloader_iter, targetloader_iter, i_iter,
     current_losses = {'image_weight': image_weight}
 
     loss_seg_src = loss_seg_src.mean()
-    # loss_seg_src.backward(retain_graph=True)
+    loss_seg_src.backward(retain_graph=True)
     current_losses.update({'loss_seg_src': loss_seg_src.item()})
 
     # train on target
     loss_seg_trg = loss_calc(pred_trg, label_trg, None, device)
-    loss_seg = loss_seg_trg + loss_seg_src
-    loss_seg.backward()
+    loss_seg_trg.backward()
 
     current_losses.update({'loss_seg_trg': loss_seg_trg.item()})
     print_losses(current_losses, i_iter)
