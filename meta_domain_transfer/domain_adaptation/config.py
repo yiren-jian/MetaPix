@@ -51,6 +51,8 @@ cfg.TRAIN.INPUT_SIZE_TARGET = (1024, 512)
 cfg.TRAIN.INFO_SOURCE = ''
 cfg.TRAIN.INFO_TARGET = str(project_root / 'meta_domain_transfer/dataset/cityscapes_list/info.json')
 # Segmentation network params
+cfg.TRAIN.MODEL_PATH = None
+cfg.TRAIN.MODEL_W_PATH = None
 cfg.TRAIN.MODEL = 'DeepLabv2'
 cfg.TRAIN.MULTI_LEVEL = True
 cfg.TRAIN.RESTORE_FROM = ''

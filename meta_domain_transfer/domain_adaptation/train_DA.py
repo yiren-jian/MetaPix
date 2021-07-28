@@ -727,8 +727,7 @@ def train_W_with_FCN(model, trainloader, targetloader, cfg):
 
 
 def train_FCN_with_W(model, trainloader, targetloader, cfg):
-    saved_state_dict = torch.load('/home/yiren/META_DOMAIN_TRANSFER/pretrained_models/model_gen0.pth')
-    model.load_state_dict(saved_state_dict)
+    model.load_state_dict(torch.load(cfg.TRAIN.MODEL_PATH))
 
     # Create the model and start the training.
     input_size_source = cfg.TRAIN.INPUT_SIZE_SOURCE
@@ -748,7 +747,7 @@ def train_FCN_with_W(model, trainloader, targetloader, cfg):
     # AUXILIARY NETWORK: Pixel Weight
     model_W = get_unet2(input_channel=23, num_classes=2)
     # model_W = get_unet4(input_channel=39, num_classes=2)
-    model_W.load_state_dict(torch.load('/home/yiren/META_DOMAIN_TRANSFER/pretrained_models/W_gen0.pth'))
+    model_W.load_state_dict(torch.load(cfg.TRAIN.MODEL_W_PATH))
     model_W.train()
     model_W.to(device)
 
