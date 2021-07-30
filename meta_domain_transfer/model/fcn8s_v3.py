@@ -584,7 +584,7 @@ class FCN8s(nn.Module):
             FCN8s,
         )
         for m in self.modules():
-            if isinstance(m, nn.Conv2d):
+            if isinstance(m, nn.Conv2d) or isinstance(m, nn.BatchNorm2d):
                 if bias:
                     yield m.bias
                 else:
