@@ -532,27 +532,27 @@ class FCN8s(nn.Module):
     def forward(self, x, parameters=None):
         if parameters is None:
             h = x
-            h = self.relu1_1(self.conv1_1(h))
-            h = self.relu1_2(self.conv1_2(h))
+            h = self.relu1_1(self.bn1_1(self.conv1_1(h)))
+            h = self.relu1_2(self.bn1_2(self.conv1_2(h)))
             conv1 = self.pool1(h)
 
-            h = self.relu2_1(self.conv2_1(conv1))
-            h = self.relu2_2(self.conv2_2(h))
+            h = self.relu2_1(self.bn2_1(self.conv2_1(conv1)))
+            h = self.relu2_2(self.bn2_2(self.conv2_2(h)))
             conv2 = self.pool2(h)
 
-            h = self.relu3_1(self.conv3_1(conv2))
-            h = self.relu3_2(self.conv3_2(h))
-            h = self.relu3_3(self.conv3_3(h))
+            h = self.relu3_1(self.bn3_1(self.conv3_1(conv2)))
+            h = self.relu3_2(self.bn3_2(self.conv3_2(h)))
+            h = self.relu3_3(self.bn3_3(self.conv3_3(h)))
             conv3 = self.pool3(h) # 1/8
 
-            h = self.relu4_1(self.conv4_1(conv3))
-            h = self.relu4_2(self.conv4_2(h))
-            h = self.relu4_3(self.conv4_3(h))
+            h = self.relu4_1(self.bn4_1(self.conv4_1(conv3)))
+            h = self.relu4_2(self.bn4_2(self.conv4_2(h)))
+            h = self.relu4_3(self.bn4_3(self.conv4_3(h)))
             conv4 = self.pool4(h) # 1/16
 
-            h = self.relu5_1(self.conv5_1(conv4))
-            h = self.relu5_2(self.conv5_2(h))
-            h = self.relu5_3(self.conv5_3(h))
+            h = self.relu5_1(self.bn5_1(self.conv5_1(conv4)))
+            h = self.relu5_2(self.bn5_2(self.conv5_2(h)))
+            h = self.relu5_3(self.bn5_3(self.conv5_3(h)))
             conv5 = self.pool5(h) # [1, 512, 16, 32]
 
             h = self.relu6(self.fc6(conv5))
@@ -625,3 +625,4 @@ def get_fcn8s_vgg(num_classes=19, init_weights='../../pretrained_models/vggfcn_i
 
 if __name__ == '__main__':
     init_vggfcnx2()
+
