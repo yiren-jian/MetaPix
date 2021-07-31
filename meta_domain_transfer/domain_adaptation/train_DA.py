@@ -218,7 +218,6 @@ def train_direct_joint(model, trainloader, targetloader, cfg):
 
     # SEGMNETATION NETWORK
     model.train()
-    model = nn.DataParallel(model)
     model.to(device)
     cudnn.benchmark = True
     cudnn.enabled = True
@@ -228,8 +227,8 @@ def train_direct_joint(model, trainloader, targetloader, cfg):
     if cfg.TRAIN.OPTIMIZER == 'Adam':
         optimizer = optim.Adam(
             [
-                {'params': model.module.get_parameters(bias=False)},
-                {'params': model.module.get_parameters(bias=True),
+                {'params': model.get_parameters(bias=False)},
+                {'params': model.get_parameters(bias=True),
                  'lr': cfg.TRAIN.LEARNING_RATE * 2}
             ],
             lr=cfg.TRAIN.LEARNING_RATE,
@@ -238,8 +237,8 @@ def train_direct_joint(model, trainloader, targetloader, cfg):
     elif cfg.TRAIN.OPTIMIZER == 'SGD':
         optimizer = optim.SGD(
             [
-                {'params': model.module.get_parameters(bias=False)},
-                {'params': model.module.get_parameters(bias=True),
+                {'params': model.get_parameters(bias=False)},
+                {'params': model.get_parameters(bias=True),
                 'lr': cfg.TRAIN.LEARNING_RATE * 2}
             ],
             lr=cfg.TRAIN.LEARNING_RATE,
@@ -261,7 +260,7 @@ def train_direct_joint(model, trainloader, targetloader, cfg):
         optimizer.zero_grad()
 
         # adapt LR if needed
-        model.module.adjust_learning_rate(optimizer, i_iter, cfg)
+        model.adjust_learning_rate(optimizer, i_iter, cfg)
 
         # UDA Training
         # train on source
@@ -288,7 +287,7 @@ def train_direct_joint(model, trainloader, targetloader, cfg):
         if i_iter % cfg.TRAIN.SAVE_PRED_EVERY == 0 and i_iter != 0:
             print('taking snapshot ...')
             print('exp =', cfg.TRAIN.SNAPSHOT_DIR)
-            torch.save(model.module.state_dict(),
+            torch.save(model.state_dict(),
                        osp.join(cfg.TRAIN.SNAPSHOT_DIR, f'model_{i_iter}.pth'))
             if i_iter >= cfg.TRAIN.EARLY_STOP - 1:
                 break
