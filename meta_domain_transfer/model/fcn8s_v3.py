@@ -625,4 +625,3 @@ def get_fcn8s_vgg(num_classes=19, init_weights='../../pretrained_models/vggfcn_i
 
 if __name__ == '__main__':
     init_vggfcnx2()
-

@@ -594,8 +594,7 @@ def _train_meta_pixel_weight_step2(trainloader_iter, targetloader_iter, i_iter,
 
 
 def train_W_with_FCN(model, trainloader, targetloader, cfg):
-    saved_state_dict = torch.load('/home/yiren/META_DOMAIN_TRANSFER/pretrained_models/model_gen0.pth')
-    model.load_state_dict(saved_state_dict)
+    model.load_state_dict(torch.load(cfg.TRAIN.MODEL_PATH))
 
     # Create the model and start the training.
     input_size_source = cfg.TRAIN.INPUT_SIZE_SOURCE

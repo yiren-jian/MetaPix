@@ -12,6 +12,7 @@ from torch.utils import data
 
 from meta_domain_transfer.model.deeplabv2 import get_deeplab_v2
 from meta_domain_transfer.model.fcn8s_v2 import get_fcn8sx2_vgg as get_fcn8s_vgg
+from meta_domain_transfer.model.fcn8s_v2 import init_vggfcnx2
 from meta_domain_transfer.dataset.gta5 import GTA5DataSet
 from meta_domain_transfer.dataset.synthia import SYNDataSet
 from meta_domain_transfer.dataset.cityscapes import CityscapesDataSet
@@ -100,6 +101,7 @@ def main():
         else:
             model.load_state_dict(saved_state_dict)
     elif cfg.TRAIN.MODEL == 'FCN8s':
+        init_vggfcnx2(num_classes=cfg.NUM_CLASSES)
         model = get_fcn8s_vgg(num_classes=cfg.NUM_CLASSES)
     else:
         raise NotImplementedError(f"Not yet supported {cfg.TRAIN.MODEL}")

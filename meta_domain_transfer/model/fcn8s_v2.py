@@ -255,13 +255,13 @@ class FCN8sx2(nn.Module):
             if len(optimizer.param_groups) > 1:
                 optimizer.param_groups[1]['lr'] = cfg.TRAIN.LEARNING_RATE * ((1 - float(i) / cfg.TRAIN.MAX_ITERS) ** cfg.TRAIN.POWER) * 2
 
-def init_vggfcnx2():
+def init_vggfcnx2(num_classes=19):
     import torchvision.models as models
     import os
     import os.path
 
     # initiate a FCN model
-    model = VGG16_FCN8sx2(num_classes=19, init_weights=None)
+    model = VGG16_FCN8sx2(num_classes=num_classes, init_weights=None)
     params = model.state_dict().copy()
 
     # load the pytorch pretrained VGG16
