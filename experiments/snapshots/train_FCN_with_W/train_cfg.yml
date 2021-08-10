@@ -1,0 +1,208 @@
+!!python/object/new:easydict.EasyDict
+dictitems:
+  DATA_DIRECTORY_SOURCE: /home/yiren/datasets/UDA/GTA5
+  DATA_DIRECTORY_TARGET: /home/yiren/datasets/UDA/Cityscapes
+  DATA_LIST_SOURCE: /home/yiren/META_DOMAIN_TRANSFER/meta_domain_transfer/dataset/gta5_list/{}.txt
+  DATA_LIST_TARGET: /home/yiren/META_DOMAIN_TRANSFER/meta_domain_transfer/dataset/cityscapes_list/{}.txt
+  EXP_NAME: train_FCN_with_W
+  EXP_ROOT: &id014 !!python/object/apply:pathlib.PosixPath
+  - /
+  - home
+  - yiren
+  - META_DOMAIN_TRANSFER
+  - experiments
+  EXP_ROOT_LOGS: /home/yiren/META_DOMAIN_TRANSFER/experiments/logs
+  EXP_ROOT_SNAPSHOT: /home/yiren/META_DOMAIN_TRANSFER/experiments/snapshots
+  GPU_ID: 0
+  NUM_CLASSES: 19
+  NUM_WORKERS: 4
+  SOURCE: GTA
+  TARGET: Cityscapes
+  TEST: &id015 !!python/object/new:easydict.EasyDict
+    dictitems:
+      BATCH_SIZE_TARGET: 1
+      IMG_MEAN: &id001 !!python/object/apply:numpy.core.multiarray._reconstruct
+        args:
+        - &id009 !!python/name:numpy.ndarray ''
+        - !!python/tuple
+          - 0
+        - !!binary |
+          Yg==
+        state: !!python/tuple
+        - 1
+        - !!python/tuple
+          - 3
+        - &id010 !!python/object/apply:numpy.dtype
+          args:
+          - f4
+          - false
+          - true
+          state: !!python/tuple
+          - 3
+          - <
+          - null
+          - null
+          - null
+          - -1
+          - -1
+          - 0
+        - false
+        - !!binary |
+          lAPQQmlW6UKbW/VC
+      INFO_TARGET: /home/yiren/META_DOMAIN_TRANSFER/meta_domain_transfer/dataset/cityscapes_list/info.json
+      INPUT_SIZE_TARGET: &id002
+      - 1024
+      - 512
+      MODE: best
+      MODEL: &id003
+      - FCN8s
+      MODEL_WEIGHT: &id004
+      - 1.0
+      MULTI_LEVEL: &id005
+      - true
+      OUTPUT_SIZE_TARGET: &id006
+      - 1024
+      - 512
+      RESTORE_FROM: &id007
+      - ''
+      SET_TARGET: val
+      SNAPSHOT_DIR: &id008
+      - ''
+      SNAPSHOT_MAXITER: 15000
+      SNAPSHOT_STEP: 500
+      WAIT_MODEL: true
+    state:
+      BATCH_SIZE_TARGET: 1
+      IMG_MEAN: *id001
+      INFO_TARGET: /home/yiren/META_DOMAIN_TRANSFER/meta_domain_transfer/dataset/cityscapes_list/info.json
+      INPUT_SIZE_TARGET: *id002
+      MODE: best
+      MODEL: *id003
+      MODEL_WEIGHT: *id004
+      MULTI_LEVEL: *id005
+      OUTPUT_SIZE_TARGET: *id006
+      RESTORE_FROM: *id007
+      SET_TARGET: val
+      SNAPSHOT_DIR: *id008
+      SNAPSHOT_MAXITER: 15000
+      SNAPSHOT_STEP: 500
+      WAIT_MODEL: true
+  TRAIN: &id016 !!python/object/new:easydict.EasyDict
+    dictitems:
+      BATCH_SIZE_SOURCE: 1
+      BATCH_SIZE_TARGET: 1
+      DA_METHOD: train_FCN_with_W
+      EARLY_STOP: 15000
+      IGNORE_LABEL: 255
+      IMG_MEAN: &id011 !!python/object/apply:numpy.core.multiarray._reconstruct
+        args:
+        - *id009
+        - !!python/tuple
+          - 0
+        - !!binary |
+          Yg==
+        state: !!python/tuple
+        - 1
+        - !!python/tuple
+          - 3
+        - *id010
+        - false
+        - !!binary |
+          lAPQQmlW6UKbW/VC
+      INFO_SOURCE: ''
+      INFO_TARGET: /home/yiren/META_DOMAIN_TRANSFER/meta_domain_transfer/dataset/cityscapes_list/info.json
+      INPUT_SIZE_SOURCE: &id012
+      - 1280
+      - 720
+      INPUT_SIZE_TARGET: &id013
+      - 1024
+      - 512
+      LAMBDA_ADV_AUX: 0.0002
+      LAMBDA_ADV_MAIN: 0.001
+      LAMBDA_ENT_AUX: 0.0002
+      LAMBDA_ENT_MAIN: 0.001
+      LAMBDA_SEG_AUX: 0.1
+      LAMBDA_SEG_MAIN: 1.0
+      LEARNING_RATE: 5.0e-05
+      LEARNING_RATE_D: 0.0001
+      MAX_ITERS: 15000
+      META_ALTERNATION_RATE: 1
+      META_LEARNING_RATE: 0.0001
+      META_OPTIMIZER: Adam
+      META_WEIGHT_DECAY: 0.0001
+      MODEL: FCN8s
+      MODEL_PATH: /home/yiren/META_DOMAIN_TRANSFER/pretrained_models/GTA2CityScapes_gen3.pth
+      MODEL_W_PATH: /home/yiren/META_DOMAIN_TRANSFER/pretrained_models/GTA2CityScapes_W_gen3.pth
+      MOMENTUM: 0.9
+      MULTI_LEVEL: true
+      OPTIMIZER: Adam
+      POWER: 0.9
+      RANDOM_SEED: 1234
+      RESTORE_FROM: ''
+      SAVE_PRED_EVERY: 500
+      SCALE_LOSS: 0.3
+      SCHEDULER: polynomial
+      SET_SOURCE: all
+      SET_TARGET: train
+      SNAPSHOT_DIR: /home/yiren/META_DOMAIN_TRANSFER/experiments/snapshots/train_FCN_with_W
+      TENSORBOARD_LOGDIR: /home/yiren/META_DOMAIN_TRANSFER/experiments/logs/tensorboard/train_FCN_with_W
+      TENSORBOARD_VIZRATE: 100
+      WEIGHT_DECAY: 0.0001
+    state:
+      BATCH_SIZE_SOURCE: 1
+      BATCH_SIZE_TARGET: 1
+      DA_METHOD: train_FCN_with_W
+      EARLY_STOP: 15000
+      IGNORE_LABEL: 255
+      IMG_MEAN: *id011
+      INFO_SOURCE: ''
+      INFO_TARGET: /home/yiren/META_DOMAIN_TRANSFER/meta_domain_transfer/dataset/cityscapes_list/info.json
+      INPUT_SIZE_SOURCE: *id012
+      INPUT_SIZE_TARGET: *id013
+      LAMBDA_ADV_AUX: 0.0002
+      LAMBDA_ADV_MAIN: 0.001
+      LAMBDA_ENT_AUX: 0.0002
+      LAMBDA_ENT_MAIN: 0.001
+      LAMBDA_SEG_AUX: 0.1
+      LAMBDA_SEG_MAIN: 1.0
+      LEARNING_RATE: 5.0e-05
+      LEARNING_RATE_D: 0.0001
+      MAX_ITERS: 15000
+      META_ALTERNATION_RATE: 1
+      META_LEARNING_RATE: 0.0001
+      META_OPTIMIZER: Adam
+      META_WEIGHT_DECAY: 0.0001
+      MODEL: FCN8s
+      MODEL_PATH: /home/yiren/META_DOMAIN_TRANSFER/pretrained_models/GTA2CityScapes_gen3.pth
+      MODEL_W_PATH: /home/yiren/META_DOMAIN_TRANSFER/pretrained_models/GTA2CityScapes_W_gen3.pth
+      MOMENTUM: 0.9
+      MULTI_LEVEL: true
+      OPTIMIZER: Adam
+      POWER: 0.9
+      RANDOM_SEED: 1234
+      RESTORE_FROM: ''
+      SAVE_PRED_EVERY: 500
+      SCALE_LOSS: 0.3
+      SCHEDULER: polynomial
+      SET_SOURCE: all
+      SET_TARGET: train
+      SNAPSHOT_DIR: /home/yiren/META_DOMAIN_TRANSFER/experiments/snapshots/train_FCN_with_W
+      TENSORBOARD_LOGDIR: /home/yiren/META_DOMAIN_TRANSFER/experiments/logs/tensorboard/train_FCN_with_W
+      TENSORBOARD_VIZRATE: 100
+      WEIGHT_DECAY: 0.0001
+state:
+  DATA_DIRECTORY_SOURCE: /home/yiren/datasets/UDA/GTA5
+  DATA_DIRECTORY_TARGET: /home/yiren/datasets/UDA/Cityscapes
+  DATA_LIST_SOURCE: /home/yiren/META_DOMAIN_TRANSFER/meta_domain_transfer/dataset/gta5_list/{}.txt
+  DATA_LIST_TARGET: /home/yiren/META_DOMAIN_TRANSFER/meta_domain_transfer/dataset/cityscapes_list/{}.txt
+  EXP_NAME: train_FCN_with_W
+  EXP_ROOT: *id014
+  EXP_ROOT_LOGS: /home/yiren/META_DOMAIN_TRANSFER/experiments/logs
+  EXP_ROOT_SNAPSHOT: /home/yiren/META_DOMAIN_TRANSFER/experiments/snapshots
+  GPU_ID: 0
+  NUM_CLASSES: 19
+  NUM_WORKERS: 4
+  SOURCE: GTA
+  TARGET: Cityscapes
+  TEST: *id015
+  TRAIN: *id016

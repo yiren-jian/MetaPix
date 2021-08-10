@@ -9,7 +9,7 @@ TRAIN:
   DA_METHOD: 'train_FCN_with_W'
   MODEL: FCN8s
   MODEL_PATH: '/home/yiren/META_DOMAIN_TRANSFER/pretrained_models/GTA2CityScapes_gen3.pth'
-  MODEL_W_PATH: '/home/yiren/META_DOMAIN_TRANSFER/experiments/snapshots/train_W_with_FCN/model_W_8000.pth'
+  MODEL_W_PATH: '/home/yiren/META_DOMAIN_TRANSFER/pretrained_models/GTA2CityScapes_W_gen3.pth'
   OPTIMIZER: 'Adam'
   SCHEDULER: 'polynomial'
   LEARNING_RATE: 0.00005
