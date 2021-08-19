@@ -35,16 +35,42 @@ This will create a directory `pretrained_models` with/and a FCN model pretrained
 
 ### Training
 To train MetaPixelWeight:
+
 ```bash
 $ cd <root_dir>/meta_domain_transfer/scripts
-$ python train.py --cfg ./configs/meta_pixel_weight.yml
+$ python train.py --cfg ./configs/direct_joint.yml
 ```
+
+```bash
+$ cd <root_dir>/meta_domain_transfer/scripts
+$ python train.py --cfg ./configs/train_W_with_FCN.yml
+```
+
+```bash
+$ cd <root_dir>/meta_domain_transfer/scripts
+$ python train.py --cfg ./configs/train_FCN_with_W.yml
+```
+
 
 ### Testing
 To test MetaPixelWeight:
 ```bash
 $ cd <root_dir>/meta_domain_transfer/scripts
-$ python test.py --cfg ./configs/meta_pixel_weight.yml
+$ python test.py --cfg ./configs/train_FCN_with_W.yml
+```
+
+### Baselines
+
+```bash
+$ cd <root_dir>/meta_domain_transfer/scripts
+$ python train.py --cfg ./configs/direct_joint.yml
+$ python test.py --cfg ./configs/direct_joint.yml
+```
+
+```bash
+$ cd <root_dir>/meta_domain_transfer/scripts
+$ python train.py --cfg ./configs/target_only.yml
+$ python test.py --cfg ./configs/target_only.yml
 ```
 
 ## Acknowledgements
