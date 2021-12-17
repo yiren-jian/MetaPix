@@ -1,4 +1,4 @@
-# META DOMAIN TRANSFER
+# MetaPix
 This repo covers the implementation of **[MetaPix: Domain transfer for semantic segmentation by meta pixel weighting](https://www.sciencedirect.com/science/article/pii/S0262885621002390)** published on Image and Vision Computing, 2021.
 ```bibtex
 @article{Jian2021MetaPix,
