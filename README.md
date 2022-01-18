@@ -21,8 +21,8 @@ issn = {0262-8856}
 ### Installation
 0. Clone the repo:
 ```bash
-$ git clone https://github.com/yiren-jian/META_DOMAIN_TRANSFER
-$ cd META_DOMAIN_TRANSFER
+$ git clone https://github.com/yiren-jian/MetaPix
+$ cd MetaPix
 ```
 
 1. Install this repository and the dependencies using pip:
@@ -32,7 +32,7 @@ $ pip install -e <root_dir>
 
 2. Optional. To uninstall this package, run:
 ```bash
-$ pip uninstall META_DOMAIN_TRANSFER
+$ pip uninstall MetaPix
 ```
 
 ## Running the code
