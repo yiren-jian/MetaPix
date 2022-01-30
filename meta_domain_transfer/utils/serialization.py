@@ -34,4 +34,4 @@ def yaml_dump(python_object, file_path):
 
 def yaml_load(file_path):
     with open(file_path, 'r') as f:
-        return yaml.load(f)
+        return yaml.full_load(f)
